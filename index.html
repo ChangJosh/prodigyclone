@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Prodigy Clone - Full Flow</title>
+  <title>Prodigy Clone - Turn System</title>
   <style>
-    body { font-family: sans-serif; background: #f0f4f8; text-align: center; }
+    body { font-family: sans-serif; background: #eef2f7; text-align: center; }
     .screen { display: none; }
     .visible { display: block; }
-    button { padding: 10px 15px; margin: 10px; font-size: 16px; }
-    .status { margin: 10px; font-weight: bold; }
-    .question-box { background: white; padding: 20px; border-radius: 10px; display: inline-block; }
+    button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+    .status { font-weight: bold; margin: 10px; }
+    .question-box { background: white; padding: 20px; border-radius: 10px; display: inline-block; margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -24,7 +24,8 @@
 <div id="battleScreen" class="screen">
   <h2>⚔️ Battle</h2>
   <div class="status">
-    Player HP: <span id="playerHp">100</span> | Energy: <span id="playerEnergy">0</span><br>
+    Player HP: <span id="playerHp">100</span> |
+    Energy: <span id="playerEnergy">0</span><br>
     Enemy HP: <span id="enemyHp">100</span>
   </div>
   <div id="actions">
@@ -38,10 +39,11 @@
 <!-- QUESTION SCREEN -->
 <div id="questionScreen" class="screen">
   <h2>🧠 Answer Questions to Gain Energy</h2>
-  <div id="questionContainer" class="question-box">
+  <div class="question-box">
     <p id="questionText"></p>
-    <div id="answerArea"></div>
-    <button onclick="submitAnswer()">Submit</button>
+    <input type="number" id="userAnswer" />
+    <p id="feedback"></p>
+    <button onclick="submitAnswer()">Submit Answer</button>
   </div>
 </div>
 
@@ -50,10 +52,10 @@
   let playerEnergy = 0;
   let enemyHp = 100;
 
-  // QUESTION STATE
-  let currentQuestion = 0;
+  // QUESTION SYSTEM
+  let questionCount = 0;
   let correctAnswers = 0;
-  let questionSet = [];
+  let currentAnswer = 0;
 
   function switchScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
@@ -62,7 +64,6 @@
 
   function goToBattle() {
     resetBattle();
-    switchScreen('battleScreen');
     startQuestionPhase();
   }
 
@@ -71,7 +72,7 @@
     playerEnergy = 0;
     enemyHp = 100;
     updateUI();
-    document.getElementById("battleLog").innerText = '';
+    log('');
   }
 
   function updateUI() {
@@ -80,93 +81,56 @@
     document.getElementById("playerEnergy").innerText = playerEnergy;
   }
 
-  // === QUESTION SYSTEM ===
+  function log(msg) {
+    document.getElementById("battleLog").innerText = msg;
+  }
+
+  // === QUESTIONS ===
   function startQuestionPhase() {
     correctAnswers = 0;
-    currentQuestion = 0;
-    questionSet = generateQuestionSet(3);
-    switchScreen('questionScreen');
-    showQuestion();
+    questionCount = 0;
+    switchScreen("questionScreen");
+    nextQuestion();
   }
 
-  function generateQuestionSet(n) {
-    const q = [];
-
-    for (let i = 0; i < n; i++) {
-      if (Math.random() < 0.5) {
-        // Input-based
-        const a = Math.floor(Math.random() * 10) + 1;
-        const b = Math.floor(Math.random() * 10) + 1;
-        q.push({ type: "input", question: `What is ${a} + ${b}?`, answer: a + b });
-      } else {
-        // Multiple choice
-        const a = Math.floor(Math.random() * 12) + 1;
-        const b = Math.floor(Math.random() * 12) + 1;
-        const correct = a * b;
-        const choices = shuffleArray([
-          correct,
-          correct + 2,
-          correct - 3,
-          correct + 5
-        ]);
-        q.push({ type: "mc", question: `What is ${a} × ${b}?`, answer: correct, choices });
-      }
-    }
-    return q;
-  }
-
-  function showQuestion() {
-    const q = questionSet[currentQuestion];
-    document.getElementById("questionText").innerText = q.question;
-    const answerArea = document.getElementById("answerArea");
-    answerArea.innerHTML = '';
-
-    if (q.type === "input") {
-      const input = document.createElement("input");
-      input.type = "number";
-      input.id = "userAnswer";
-      answerArea.appendChild(input);
-    } else if (q.type === "mc") {
-      q.choices.forEach((choice, index) => {
-        const label = document.createElement("label");
-        label.innerHTML = `
-          <input type="radio" name="mcAnswer" value="${choice}">
-          ${choice}
-        `;
-        answerArea.appendChild(label);
-        answerArea.appendChild(document.createElement("br"));
-      });
-    }
+  function nextQuestion() {
+    const a = Math.floor(Math.random() * 10) + 1;
+    const b = Math.floor(Math.random() * 10) + 1;
+    currentAnswer = a + b;
+    document.getElementById("questionText").innerText = `What is ${a} + ${b}?`;
+    document.getElementById("userAnswer").value = '';
+    document.getElementById("feedback").innerText = '';
   }
 
   function submitAnswer() {
-    const q = questionSet[currentQuestion];
-    let userAnswer;
-
-    if (q.type === "input") {
-      userAnswer = parseInt(document.getElementById("userAnswer").value);
-    } else if (q.type === "mc") {
-      const selected = document.querySelector('input[name="mcAnswer"]:checked');
-      if (!selected) return alert("Please select an answer!");
-      userAnswer = parseInt(selected.value);
+    const input = document.getElementById("userAnswer").value.trim();
+    if (input === '') {
+      alert("Please enter an answer before continuing.");
+      return;
     }
 
-    if (userAnswer === q.answer) correctAnswers++;
+    const user = parseInt(input);
+    const feedback = document.getElementById("feedback");
 
-    currentQuestion++;
-    if (currentQuestion < questionSet.length) {
-      showQuestion();
+    if (user === currentAnswer) {
+      correctAnswers++;
+      feedback.innerText = "✅ Correct!";
     } else {
-      const gainedEnergy = correctAnswers * 10;
-      playerEnergy += gainedEnergy;
-      alert(`You got ${correctAnswers}/3 correct and gained ${gainedEnergy} energy!`);
-      switchScreen('battleScreen');
-      updateUI();
+      feedback.innerText = `❌ Incorrect. The correct answer was ${currentAnswer}.`;
     }
-  }
 
-  function shuffleArray(arr) {
-    return arr.sort(() => Math.random() - 0.5);
+    questionCount++;
+    if (questionCount < 3) {
+      setTimeout(nextQuestion, 1500);
+    } else {
+      setTimeout(() => {
+        const energyGained = correctAnswers * 10;
+        playerEnergy += energyGained;
+        updateUI();
+        log(`You got ${correctAnswers}/3 correct and gained ${energyGained} energy.`);
+        switchScreen("battleScreen");
+      }, 2000);
+    }
   }
 
   // === ACTIONS ===
@@ -199,22 +163,21 @@
     if (enemyHp <= 0) {
       alert("You win! 🎉");
       switchScreen("homeScreen");
+    } else if (playerHp <= 0) {
+      alert("You were defeated! 💀");
+      switchScreen("homeScreen");
     } else if (playerEnergy <= 0) {
       const dmg = Math.floor(Math.random() * 15) + 10;
       playerHp -= dmg;
       updateUI();
       log(`Enemy attacked for ${dmg} while you had no energy!`);
       if (playerHp <= 0) {
-        alert("You were defeated!");
+        alert("You were defeated! 💀");
         switchScreen("homeScreen");
       } else {
         setTimeout(startQuestionPhase, 1000);
       }
     }
-  }
-
-  function log(msg) {
-    document.getElementById("battleLog").innerText = msg;
   }
 </script>
 
