@@ -1,117 +1,82 @@
-/* Global Styles */
 body {
-  font-family: 'Comic Sans MS', cursive, sans-serif;
-  background: linear-gradient(to bottom, #ff99cc, #cce6ff);
-  margin: 0;
-  padding: 0;
-  color: #333;
-  text-align: center;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #ffcc00, #ff6600);
+    text-align: center;
+    color: #fff;
 }
 
-h1, h2 {
-  font-size: 2.5em;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
-}
-
-/* Button Styles */
-button {
-  background-color: #ff6f61;
-  border: none;
-  color: white;
-  padding: 15px 30px;
-  font-size: 1.2em;
-  cursor: pointer;
-  border-radius: 8px;
-  margin: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-button:hover {
-  background-color: #ff4d3f;
-  transform: scale(1.1);
-}
-
-button:active {
-  transform: scale(1);
-}
-
-/* Screen Styles */
 .screen {
-  display: none;
+    display: none;
 }
 
 .visible {
-  display: block;
+    display: block;
 }
 
-#gameContainer {
-  width: 80%;
-  margin: 0 auto;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #0044cc;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
 }
 
-/* Sprite Styles */
-#playerSprite,
-#monsterSprite {
-  width: 200px;
-  height: 200px;
-  margin: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+button.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
-/* Transitions for Actions */
 #battleLog {
-  margin-top: 20px;
-  font-size: 1.5em;
-  font-weight: bold;
+    margin-top: 20px;
+    font-size: 18px;
 }
 
-#battleLog.correct {
-  color: green;
-  animation: fadeIn 1s;
+.correct {
+    color: green;
+    font-weight: bold;
 }
 
-#battleLog.incorrect {
-  color: red;
-  animation: fadeIn 1s;
+.incorrect {
+    color: red;
+    font-weight: bold;
 }
 
-#battleLog.energy {
-  color: #ff6f61;
-  animation: fadeIn 1s;
+.energy {
+    color: #00cc00;
 }
 
-#battleLog.damage {
-  color: yellow;
-  animation: fadeIn 1s;
+.damage {
+    color: red;
 }
 
-#battleLog.heal {
-  color: lightgreen;
-  animation: fadeIn 1s;
+.heal {
+    color: green;
 }
 
-#battleLog.enemyDamage {
-  color: darkred;
-  animation: fadeIn 1s;
+.monsterAttack {
+    color: orange;
 }
 
-#battleLog.monsterAttack {
-  color: purple;
-  animation: fadeIn 1s;
+#battleActions {
+    margin-top: 20px;
 }
 
-/* Fade-in Effect for Transitions */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+input[type="text"] {
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 18px;
+    width: 200px;
+    text-align: center;
+}
+
+#mcOptions button {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #0044cc;
+    color: white;
+    margin: 5px;
+    cursor: pointer;
 }
