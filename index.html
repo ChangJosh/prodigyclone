@@ -1,219 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Prodigy Clone - Monster Attack</title>
-  <style>
-    body { font-family: sans-serif; background: #eef2f7; text-align: center; }
-    .screen { display: none; }
-    .visible { display: block; }
-    button { padding: 10px 20px; margin: 10px; font-size: 16px; }
-    .status { font-weight: bold; margin: 10px; }
-    .question-box { background: white; padding: 20px; border-radius: 10px; display: inline-block; margin-top: 20px; }
-    .disabled { opacity: 0.5; pointer-events: none; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prodigy Clone</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- HOME SCREEN -->
-<div id="homeScreen" class="screen visible">
-  <h1>Welcome to Prodigy Clone</h1>
-  <button onclick="goToBattle()">Enter Battle</button>
-</div>
-
-<!-- BATTLE SCREEN -->
-<div id="battleScreen" class="screen">
-  <h2>⚔️ Battle</h2>
-  <div class="status">
-    Player HP: <span id="playerHp">100</span> |
-    Energy: <span id="playerEnergy">0</span><br>
-    Enemy HP: <span id="enemyHp">100</span>
+  <!-- HOME SCREEN -->
+  <div id="homeScreen" class="screen visible">
+    <h1>Welcome to Prodigy Clone</h1>
+    <button onclick="goToBattle()">Enter Battle</button>
   </div>
-  <div id="actions">
-    <button id="attackBtn" onclick="attack()">Attack (10 energy)</button>
-    <button id="healBtn" onclick="heal()">Heal (10 energy)</button>
-    <button id="spellBtn" onclick="castSpell()">Spell (20 energy)</button>
+
+  <!-- BATTLE SCREEN -->
+  <div id="battleScreen" class="screen">
+    <h2>⚔️ Battle</h2>
+    <div class="status">
+      Player HP: <span id="playerHp">100</span> |
+      Energy: <span id="playerEnergy">0</span><br>
+      Enemy HP: <span id="enemyHp">100</span>
+    </div>
+    <div id="actions">
+      <button id="attackBtn" onclick="attack('basic')">Basic Attack (10 Energy)</button>
+      <button id="healBtn" onclick="attack('heal')">Heal (10 Energy)</button>
+      <button id="spellBtn" onclick="attack('spell')">Spell (20 Energy)</button>
+    </div>
+    <p id="battleLog"></p>
+    <div id="gameContainer">
+      <video id="playerSprite" width="200" height="200" autoplay loop muted>
+        <source src="player_attack.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <video id="monsterSprite" width="200" height="200" autoplay loop muted>
+        <source src="monster_attack.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
   </div>
-  <p id="battleLog"></p>
-</div>
 
-<!-- QUESTION SCREEN -->
-<div id="questionScreen" class="screen">
-  <h2>🧠 Answer Questions to Gain Energy</h2>
-  <div class="question-box">
-    <p id="questionText"></p>
-    <input type="number" id="userAnswer" />
-    <p id="feedback"></p>
-    <button onclick="submitAnswer()">Submit Answer</button>
+  <!-- QUESTION SCREEN -->
+  <div id="questionScreen" class="screen">
+    <h2>🧠 Answer Questions to Gain Energy</h2>
+    <div class="question-box">
+      <p id="questionText"></p>
+      <input type="number" id="userAnswer" />
+      <p id="feedback"></p>
+      <button onclick="submitAnswer()">Submit Answer</button>
+    </div>
   </div>
-</div>
 
-<script>
-  let playerHp = 100;
-  let playerEnergy = 0;
-  let enemyHp = 100;
-  let currentAnswer = 0;
-  let questionCount = 0;
-  let correctAnswers = 0;
-  let actionUsed = false;
-
-  function switchScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
-    document.getElementById(screenId).classList.add('visible');
-  }
-
-  function goToBattle() {
-    resetBattle();
-    startQuestionPhase();
-  }
-
-  function resetBattle() {
-    playerHp = 100;
-    playerEnergy = 0;
-    enemyHp = 100;
-    updateUI();
-    log('');
-    enableActionButtons(false);
-  }
-
-  function updateUI() {
-    document.getElementById("playerHp").innerText = playerHp;
-    document.getElementById("enemyHp").innerText = enemyHp;
-    document.getElementById("playerEnergy").innerText = playerEnergy;
-  }
-
-  function log(msg) {
-    document.getElementById("battleLog").innerText = msg;
-  }
-
-  function enableActionButtons(enable) {
-    const buttons = ["attackBtn", "healBtn", "spellBtn"];
-    buttons.forEach(id => {
-      const btn = document.getElementById(id);
-      if (enable) {
-        btn.classList.remove("disabled");
-        btn.disabled = false;
-      } else {
-        btn.classList.add("disabled");
-        btn.disabled = true;
-      }
-    });
-  }
-
-  // === QUESTIONS ===
-  function startQuestionPhase() {
-    questionCount = 0;
-    correctAnswers = 0;
-    switchScreen("questionScreen");
-    nextQuestion();
-  }
-
-  function nextQuestion() {
-    const a = Math.floor(Math.random() * 10) + 1;
-    const b = Math.floor(Math.random() * 10) + 1;
-    currentAnswer = a + b;
-    document.getElementById("questionText").innerText = `What is ${a} + ${b}?`;
-    document.getElementById("userAnswer").value = '';
-    document.getElementById("feedback").innerText = '';
-  }
-
-  function submitAnswer() {
-    const input = document.getElementById("userAnswer").value.trim();
-    if (input === '') {
-      alert("Please enter an answer.");
-      return;
-    }
-
-    const user = parseInt(input);
-    const feedback = document.getElementById("feedback");
-
-    if (user === currentAnswer) {
-      correctAnswers++;
-      feedback.innerText = "✅ Correct!";
-    } else {
-      feedback.innerText = `❌ Incorrect. The correct answer was ${currentAnswer}.`;
-    }
-
-    questionCount++;
-    if (questionCount < 3) {
-      setTimeout(nextQuestion, 1500);
-    } else {
-      setTimeout(() => {
-        const gained = correctAnswers * 10;
-        playerEnergy += gained;
-        updateUI();
-        log(`You gained ${gained} energy from answering ${correctAnswers}/3 correctly.`);
-        actionUsed = false;
-        switchScreen("battleScreen");
-        enableActionButtons(true);
-      }, 2000);
-    }
-  }
-
-  // === ACTIONS ===
-  function attack() {
-    if (actionUsed || playerEnergy < 10) return log("❌ Not enough energy or turn already used!");
-    enemyHp -= 20;
-    playerEnergy -= 10;
-    log("You attacked for 20!");
-    finishPlayerTurn();
-  }
-
-  function heal() {
-    if (actionUsed || playerEnergy < 10) return log("❌ Not enough energy or turn already used!");
-    playerHp = Math.min(100, playerHp + 15);
-    playerEnergy -= 10;
-    log("You healed for 15!");
-    finishPlayerTurn();
-  }
-
-  function castSpell() {
-    if (actionUsed || playerEnergy < 20) return log("❌ Not enough energy or turn already used!");
-    enemyHp -= 35;
-    playerEnergy -= 20;
-    log("You cast a spell for 35!");
-    finishPlayerTurn();
-  }
-
-  function finishPlayerTurn() {
-    actionUsed = true;
-    updateUI();
-    enableActionButtons(false);
-
-    if (enemyHp <= 0) {
-      setTimeout(() => {
-        alert("🎉 You win!");
-        switchScreen("homeScreen");
-      }, 500);
-      return;
-    }
-
-    if (playerEnergy <= 0) {
-      log("You're out of energy. The monster is preparing to attack...");
-      setTimeout(monsterAttack, 2000);
-    } else {
-      log("Turn ended. Wait for next question phase.");
-      setTimeout(() => {
-        startQuestionPhase();
-      }, 2000);
-    }
-  }
-
-  function monsterAttack() {
-    const damage = Math.floor(Math.random() * 10) + 10;
-    playerHp -= damage;
-    updateUI();
-    log(`😈 The monster attacked and dealt ${damage} damage!`);
-    if (playerHp <= 0) {
-      setTimeout(() => {
-        alert("💀 You were defeated!");
-        switchScreen("homeScreen");
-      }, 1000);
-    } else {
-      setTimeout(startQuestionPhase, 2000);
-    }
-  }
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
