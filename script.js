@@ -1,4 +1,3 @@
-// Global Variables
 let playerHp = 100;
 let playerEnergy = 0;
 let enemyHp = 100;
@@ -6,26 +5,22 @@ let currentAnswer = 0;
 let questionCount = 0;
 let correctAnswers = 0;
 let actionUsed = false;
-let currentQuestionType = "input";  // Track question type
 let attackCooldowns = {
   basic: 0,
   heal: 0,
   spell: 0
 };
 
-// Switch Screens
 function switchScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
   document.getElementById(screenId).classList.add('visible');
 }
 
-// Start the Battle
 function goToBattle() {
   resetBattle();
   startQuestionPhase();
 }
 
-// Reset Battle Stats
 function resetBattle() {
   playerHp = 100;
   playerEnergy = 0;
@@ -35,19 +30,16 @@ function resetBattle() {
   enableActionButtons(false);
 }
 
-// Update UI
 function updateUI() {
   document.getElementById("playerHp").innerText = playerHp;
   document.getElementById("enemyHp").innerText = enemyHp;
   document.getElementById("playerEnergy").innerText = playerEnergy;
 }
 
-// Log Battle Information
 function log(msg) {
   const logElement = document.getElementById("battleLog");
   logElement.innerText = msg;
 
-  // Apply classes for transitions
   if (msg.includes("Correct")) {
     logElement.classList.add('correct');
     setTimeout(() => logElement.classList.remove('correct'), 1000);
@@ -69,7 +61,6 @@ function log(msg) {
   }
 }
 
-// Enable Action Buttons
 function enableActionButtons(enable) {
   const buttons = ["attackBtn", "healBtn", "spellBtn"];
   buttons.forEach(id => {
@@ -84,9 +75,6 @@ function enableActionButtons(enable) {
   });
 }
 
-// === QUESTION PHASE ===
-
-// Start Question Phase
 function startQuestionPhase() {
   questionCount = 0;
   correctAnswers = 0;
@@ -94,33 +82,23 @@ function startQuestionPhase() {
   nextQuestion();
 }
 
-// Generate and Show Next Question
 function nextQuestion() {
   if (Math.random() > 0.5) {
-    // Input question
-    currentQuestionType = "input";
-    const a = Math.floor(Math.random() * 10) + 1;
-    const b = Math.floor(Math.random() * 10) + 1;
-    currentAnswer = a + b;
-    document.getElementById("questionText").innerText = `What is ${a} + ${b}?`;
+    currentAnswer = Math.floor(Math.random() * 10) + 1 + Math.floor(Math.random() * 10) + 1;
+    document.getElementById("questionText").innerText = `What is ${currentAnswer - 10} + ${currentAnswer - 1}?`;
     document.getElementById("userAnswer").value = '';
     document.getElementById("feedback").innerText = '';
     document.getElementById("inputQuestion").style.display = "block";
     document.getElementById("mcQuestion").style.display = "none";
   } else {
-    // Multiple choice question
-    currentQuestionType = "mc";
-    const a = Math.floor(Math.random() * 10) + 1;
-    const b = Math.floor(Math.random() * 10) + 1;
-    currentAnswer = a + b;
+    currentAnswer = Math.floor(Math.random() * 10) + 1 + Math.floor(Math.random() * 10) + 1;
     const options = [currentAnswer, currentAnswer + 1, currentAnswer - 1, currentAnswer + 2];
     shuffle(options);
-    document.getElementById("questionText").innerText = `What is ${a} + ${b}?`;
+    document.getElementById("questionText").innerText = `What is ${currentAnswer - 10} + ${currentAnswer - 1}?`;
     document.getElementById("mcOptions").innerText = `Choose the correct answer:`;
     document.getElementById("inputQuestion").style.display = "none";
     document.getElementById("mcQuestion").style.display = "block";
 
-    // Set multiple choice options
     document.querySelectorAll("#mcQuestion button").forEach((btn, idx) => {
       btn.innerText = options[idx];
       btn.onclick = () => submitMCAnswer(options[idx]);
@@ -128,7 +106,6 @@ function nextQuestion() {
   }
 }
 
-// Submit Answer for Input Question
 function submitAnswer() {
   const input = document.getElementById("userAnswer").value.trim();
   if (input === '') {
@@ -162,7 +139,6 @@ function submitAnswer() {
   }
 }
 
-// Submit Answer for Multiple Choice Question
 function submitMCAnswer(selected) {
   if (selected === currentAnswer) {
     correctAnswers++;
@@ -187,7 +163,6 @@ function submitMCAnswer(selected) {
   }
 }
 
-// Shuffle Multiple Choice Options
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -195,14 +170,10 @@ function shuffle(arr) {
   }
 }
 
-// === ACTION PHASE ===
-
-// Perform Action (Attack, Heal, Spell)
 function attack(type) {
-  const now = Date.now();
   if (actionUsed) return log("You already acted this turn!");
 
-  const cooldownTime = 5000;
+  const now = Date.now();
   const attackData = {
     basic: { cost: 10, dmg: 20 },
     heal: { cost: 10, heal: 15 },
@@ -211,41 +182,37 @@ function attack(type) {
 
   const data = attackData[type];
   if (playerEnergy < data.cost) return log("❌ Not enough energy!");
-  if (now < attackCooldowns[type]) return log("❌ That move is on cooldown!");
 
   playerEnergy -= data.cost;
   if (data.dmg) enemyHp -= data.dmg;
   if (data.heal) playerHp = Math.min(100, playerHp + data.heal);
-  attackCooldowns[type] = now + cooldownTime;
 
-  updateUI();
   log(data.dmg ? `You dealt ${data.dmg} damage!` : `You healed for ${data.heal} HP!`);
 
   actionUsed = true;
   enableActionButtons(false);
 
-  if (enemyHp <= 0) return setTimeout(() => alert("🎉 You win!"), 500);
-  
-  // Monster attacks back
+  updateUI();
+
+  if (enemyHp <= 0) {
+    log("🎉 You win!");
+    return setTimeout(() => resetBattle(), 2000);
+  }
+
   setTimeout(monsterAttack, 2000);
 }
 
-// Monster Attacks
 function monsterAttack() {
-  if (playerEnergy === 0) {
-    log("👹 Monster attacks!");
-    const damage = Math.floor(Math.random() * 20) + 5;
-    playerHp -= damage;
-    updateUI();
-    log(`👹 Monster dealt ${damage} damage!`);
+  log("👹 Monster attacks!");
+  const damage = Math.floor(Math.random() * 20) + 5;
+  playerHp -= damage;
+  updateUI();
+  log(`👹 Monster dealt ${damage} damage!`);
 
-    if (playerHp <= 0) {
-      alert("💀 You lost!");
-      goToBattle();
-    } else {
-      setTimeout(() => {
-        startQuestionPhase();
-      }, 1500);
-    }
+  if (playerHp <= 0) {
+    log("💀 You lost!");
+    return setTimeout(() => resetBattle(), 2000);
   }
+
+  setTimeout(startQuestionPhase, 2000);
 }
