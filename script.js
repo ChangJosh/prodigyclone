@@ -5,7 +5,7 @@ let currentAnswer = 0;
 let questionCount = 0;
 let correctAnswers = 0;
 let actionUsed = false;
-
+let currentQuestionType = "input";  // Track question type
 let attackCooldowns = {
   basic: 0,
   heal: 0,
@@ -64,12 +64,36 @@ function startQuestionPhase() {
 }
 
 function nextQuestion() {
-  const a = Math.floor(Math.random() * 10) + 1;
-  const b = Math.floor(Math.random() * 10) + 1;
-  currentAnswer = a + b;
-  document.getElementById("questionText").innerText = `What is ${a} + ${b}?`;
-  document.getElementById("userAnswer").value = '';
-  document.getElementById("feedback").innerText = '';
+  if (Math.random() > 0.5) {
+    // Input question
+    currentQuestionType = "input";
+    const a = Math.floor(Math.random() * 10) + 1;
+    const b = Math.floor(Math.random() * 10) + 1;
+    currentAnswer = a + b;
+    document.getElementById("questionText").innerText = `What is ${a} + ${b}?`;
+    document.getElementById("userAnswer").value = '';
+    document.getElementById("feedback").innerText = '';
+    document.getElementById("inputQuestion").style.display = "block";
+    document.getElementById("mcQuestion").style.display = "none";
+  } else {
+    // Multiple choice question
+    currentQuestionType = "mc";
+    const a = Math.floor(Math.random() * 10) + 1;
+    const b = Math.floor(Math.random() * 10) + 1;
+    currentAnswer = a + b;
+    const options = [currentAnswer, currentAnswer + 1, currentAnswer - 1, currentAnswer + 2];
+    shuffle(options);
+    document.getElementById("questionText").innerText = `What is ${a} + ${b}?`;
+    document.getElementById("mcOptions").innerText = `Choose the correct answer:`;
+    document.getElementById("inputQuestion").style.display = "none";
+    document.getElementById("mcQuestion").style.display = "block";
+
+    // Set multiple choice options
+    document.querySelectorAll("#mcQuestion button").forEach((btn, idx) => {
+      btn.innerText = options[idx];
+      btn.onclick = () => submitMCAnswer(options[idx]);
+    });
+  }
 }
 
 function submitAnswer() {
@@ -87,6 +111,30 @@ function submitAnswer() {
     feedback.innerText = "✅ Correct!";
   } else {
     feedback.innerText = `❌ Incorrect. The correct answer was ${currentAnswer}.`;
+  }
+
+  questionCount++;
+  if (questionCount < 3) {
+    setTimeout(nextQuestion, 1500);
+  } else {
+    setTimeout(() => {
+      const gained = correctAnswers * 10;
+      playerEnergy += gained;
+      updateUI();
+      log(`You gained ${gained} energy from answering ${correctAnswers}/3 correctly.`);
+      actionUsed = false;
+      switchScreen("battleScreen");
+      enableActionButtons(true);
+    }, 2000);
+  }
+}
+
+function submitMCAnswer(selected) {
+  if (selected === currentAnswer) {
+    correctAnswers++;
+    log("✅ Correct!");
+  } else {
+    log(`❌ Incorrect. The correct answer was ${currentAnswer}.`);
   }
 
   questionCount++;
@@ -133,27 +181,34 @@ function attack(type) {
   enableActionButtons(false);
 
   if (enemyHp <= 0) return setTimeout(() => alert("🎉 You win!"), 500);
-  if (playerEnergy <= 0) {
-    log("You're out of energy! Monster is attacking...");
-    setTimeout(monsterAttack, 2000);
-  } else {
-    setTimeout(() => {
-      startQuestionPhase();
-    }, 2000);
-  }
+  
+  // Monster attacks back
+  setTimeout(monsterAttack, 2000);
 }
 
 function monsterAttack() {
-  const damage = Math.floor(Math.random() * 20) + 5;
-  playerHp -= damage;
-  updateUI();
-  log(`👹 Monster attacked and dealt ${damage} damage!`);
-  if (playerHp <= 0) {
-    alert("💀 You lost!");
-    goToBattle();
-  } else {
-    setTimeout(() => {
-      startQuestionPhase();
-    }, 1500);
+  if (playerEnergy === 0) {
+    log("👹 Monster attacks!");
+    const damage = Math.floor(Math.random() * 20) + 5;
+    playerHp -= damage;
+    updateUI();
+    log(`👹 Monster dealt ${damage} damage!`);
+
+    if (playerHp <= 0) {
+      alert("💀 You lost!");
+      goToBattle();
+    } else {
+      setTimeout(() => {
+        startQuestionPhase();
+      }, 1500);
+    }
+  }
+}
+
+// Shuffle function for randomizing MC options
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
