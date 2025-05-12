@@ -2,73 +2,129 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Prodigy Fight Clone</title>
+  <title>Mini Prodigy Clone</title>
   <style>
-    body { font-family: sans-serif; background: #e0f7fa; text-align: center; }
-    .player, .enemy { display: inline-block; margin: 20px; }
-    .health { font-weight: bold; }
-    button { padding: 10px 20px; font-size: 16px; }
+    body { font-family: sans-serif; text-align: center; background: #f0f4f8; }
+    .screen { display: none; }
+    .visible { display: block; }
+    button { padding: 10px 15px; margin: 5px; font-size: 16px; }
+    .status { margin: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>Math Battle!</h1>
 
-  <div class="player">
-    <h2>Player</h2>
-    <p>Health: <span id="playerHealth" class="health">100</span></p>
-    <button onclick="attack()">Answer Question</button>
+  <!-- Home Screen -->
+  <div id="homeScreen" class="screen visible">
+    <h1>Welcome to Prodigy Clone</h1>
+    <button onclick="goToBattle()">Enter Battle</button>
+    <button onclick="alert('Shop coming soon!')">Shop</button>
   </div>
 
-  <div class="enemy">
-    <h2>Enemy</h2>
-    <p>Health: <span id="enemyHealth" class="health">100</span></p>
+  <!-- Battle Screen -->
+  <div id="battleScreen" class="screen">
+    <h2>⚔️ Battle Time!</h2>
+    <div class="status">
+      Player HP: <span id="playerHp">100</span> | Energy: <span id="playerEnergy">3</span><br>
+      Enemy HP: <span id="enemyHp">100</span>
+    </div>
+    <button onclick="attack()">Attack (-1 energy)</button>
+    <button onclick="heal()">Heal (-1 energy)</button>
+    <button onclick="castSpell()">Spell (-2 energy)</button><br>
+    <button onclick="goHome()">🏠 Return Home</button>
+    <p id="battleLog"></p>
   </div>
-
-  <div id="question" style="margin-top: 30px;"></div>
-  <div id="result"></div>
 
   <script>
-    let playerHealth = 100;
-    let enemyHealth = 100;
+    let playerHp = 100;
+    let playerEnergy = 3;
+    let enemyHp = 100;
+
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+      document.getElementById(screenId).classList.add('visible');
+    }
+
+    function goToBattle() {
+      resetBattle();
+      switchScreen('battleScreen');
+    }
+
+    function goHome() {
+      switchScreen('homeScreen');
+    }
+
+    function resetBattle() {
+      playerHp = 100;
+      playerEnergy = 3;
+      enemyHp = 100;
+      updateUI();
+      document.getElementById("battleLog").innerText = '';
+    }
+
+    function updateUI() {
+      document.getElementById("playerHp").innerText = playerHp;
+      document.getElementById("enemyHp").innerText = enemyHp;
+      document.getElementById("playerEnergy").innerText = playerEnergy;
+    }
 
     function attack() {
-      const num1 = Math.floor(Math.random() * 10) + 1;
-      const num2 = Math.floor(Math.random() * 10) + 1;
-      const correctAnswer = num1 + num2;
-
-      const userAnswer = prompt(`What is ${num1} + ${num2}?`);
-      if (parseInt(userAnswer) === correctAnswer) {
-        enemyHealth -= 20;
-        document.getElementById("result").innerText = "Correct! You hit the enemy.";
+      if (playerEnergy < 1) return log("Not enough energy!");
+      let correct = askMathQuestion("What is 4 + 5?", 9);
+      if (correct) {
+        enemyHp -= 20;
+        playerEnergy -= 1;
+        log("You hit the enemy!");
       } else {
-        playerHealth -= 15;
-        document.getElementById("result").innerText = "Wrong! The enemy hit you.";
+        playerHp -= 10;
+        log("Wrong answer! Enemy hit you.");
       }
-
-      updateHealth();
-      checkGameOver();
+      endTurn();
     }
 
-    function updateHealth() {
-      document.getElementById("playerHealth").innerText = playerHealth;
-      document.getElementById("enemyHealth").innerText = enemyHealth;
+    function heal() {
+      if (playerEnergy < 1) return log("Not enough energy!");
+      playerHp = Math.min(100, playerHp + 15);
+      playerEnergy -= 1;
+      log("You healed 15 HP!");
+      endTurn();
     }
 
-    function checkGameOver() {
-      if (enemyHealth <= 0) {
-        alert("You win!");
-        resetGame();
-      } else if (playerHealth <= 0) {
-        alert("You lost!");
-        resetGame();
+    function castSpell() {
+      if (playerEnergy < 2) return log("Not enough energy!");
+      let correct = askMathQuestion("What is 7 x 6?", 42);
+      if (correct) {
+        enemyHp -= 35;
+        log("Powerful spell hit enemy for 35!");
+      } else {
+        playerHp -= 15;
+        log("Spell failed! You got hurt.");
+      }
+      playerEnergy -= 2;
+      endTurn();
+    }
+
+    function askMathQuestion(q, correctAnswer) {
+      let answer = prompt(q);
+      return parseInt(answer) === correctAnswer;
+    }
+
+    function endTurn() {
+      updateUI();
+      if (enemyHp <= 0) {
+        alert("Victory! 🎉");
+        goHome();
+      } else if (playerHp <= 0) {
+        alert("Defeated! 💀");
+        goHome();
+      } else if (playerEnergy <= 0) {
+        log("You're out of energy! Resetting energy...");
+        playerEnergy = 3;
+        updateUI();
       }
     }
 
-    function resetGame() {
-      playerHealth = 100;
-      enemyHealth = 100;
-      updateHealth();
-      document.getElementById("result").innerText = "";
+    function log(msg) {
+      document.getElementById("battleLog").innerText = msg;
     }
   </script>
 </body>
