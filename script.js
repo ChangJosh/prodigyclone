@@ -1,3 +1,4 @@
+// Global Variables
 let playerHp = 100;
 let playerEnergy = 0;
 let enemyHp = 100;
@@ -12,16 +13,19 @@ let attackCooldowns = {
   spell: 0
 };
 
+// Switch Screens
 function switchScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
   document.getElementById(screenId).classList.add('visible');
 }
 
+// Start the Battle
 function goToBattle() {
   resetBattle();
   startQuestionPhase();
 }
 
+// Reset Battle Stats
 function resetBattle() {
   playerHp = 100;
   playerEnergy = 0;
@@ -31,16 +35,41 @@ function resetBattle() {
   enableActionButtons(false);
 }
 
+// Update UI
 function updateUI() {
   document.getElementById("playerHp").innerText = playerHp;
   document.getElementById("enemyHp").innerText = enemyHp;
   document.getElementById("playerEnergy").innerText = playerEnergy;
 }
 
+// Log Battle Information
 function log(msg) {
-  document.getElementById("battleLog").innerText = msg;
+  const logElement = document.getElementById("battleLog");
+  logElement.innerText = msg;
+
+  // Apply classes for transitions
+  if (msg.includes("Correct")) {
+    logElement.classList.add('correct');
+    setTimeout(() => logElement.classList.remove('correct'), 1000);
+  } else if (msg.includes("Incorrect")) {
+    logElement.classList.add('incorrect');
+    setTimeout(() => logElement.classList.remove('incorrect'), 1000);
+  } else if (msg.includes("energy")) {
+    logElement.classList.add('energy');
+    setTimeout(() => logElement.classList.remove('energy'), 1000);
+  } else if (msg.includes("damage")) {
+    logElement.classList.add('damage');
+    setTimeout(() => logElement.classList.remove('damage'), 1000);
+  } else if (msg.includes("heal")) {
+    logElement.classList.add('heal');
+    setTimeout(() => logElement.classList.remove('heal'), 1000);
+  } else if (msg.includes("Monster")) {
+    logElement.classList.add('monsterAttack');
+    setTimeout(() => logElement.classList.remove('monsterAttack'), 1000);
+  }
 }
 
+// Enable Action Buttons
 function enableActionButtons(enable) {
   const buttons = ["attackBtn", "healBtn", "spellBtn"];
   buttons.forEach(id => {
@@ -55,7 +84,9 @@ function enableActionButtons(enable) {
   });
 }
 
-// === QUESTIONS ===
+// === QUESTION PHASE ===
+
+// Start Question Phase
 function startQuestionPhase() {
   questionCount = 0;
   correctAnswers = 0;
@@ -63,6 +94,7 @@ function startQuestionPhase() {
   nextQuestion();
 }
 
+// Generate and Show Next Question
 function nextQuestion() {
   if (Math.random() > 0.5) {
     // Input question
@@ -96,6 +128,7 @@ function nextQuestion() {
   }
 }
 
+// Submit Answer for Input Question
 function submitAnswer() {
   const input = document.getElementById("userAnswer").value.trim();
   if (input === '') {
@@ -129,6 +162,7 @@ function submitAnswer() {
   }
 }
 
+// Submit Answer for Multiple Choice Question
 function submitMCAnswer(selected) {
   if (selected === currentAnswer) {
     correctAnswers++;
@@ -153,7 +187,17 @@ function submitMCAnswer(selected) {
   }
 }
 
-// === ACTIONS ===
+// Shuffle Multiple Choice Options
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+// === ACTION PHASE ===
+
+// Perform Action (Attack, Heal, Spell)
 function attack(type) {
   const now = Date.now();
   if (actionUsed) return log("You already acted this turn!");
@@ -186,6 +230,7 @@ function attack(type) {
   setTimeout(monsterAttack, 2000);
 }
 
+// Monster Attacks
 function monsterAttack() {
   if (playerEnergy === 0) {
     log("👹 Monster attacks!");
@@ -202,13 +247,5 @@ function monsterAttack() {
         startQuestionPhase();
       }, 1500);
     }
-  }
-}
-
-// Shuffle function for randomizing MC options
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
