@@ -1,10 +1,11 @@
+/* Global Styles */
 body {
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #ffcc00, #ff6600);
-    text-align: center;
-    color: #fff;
+    background: #121212;
+    color: #e0e0e0;
     margin: 0;
     padding: 0;
+    text-align: center;
 }
 
 .screen {
@@ -19,7 +20,7 @@ body {
 button {
     padding: 10px 20px;
     margin: 10px;
-    background-color: #0044cc;
+    background-color: #6200ea;
     border: none;
     border-radius: 5px;
     color: white;
@@ -28,7 +29,7 @@ button {
 }
 
 button.disabled {
-    background-color: #ccc;
+    background-color: #9e9e9e;
     cursor: not-allowed;
 }
 
@@ -38,6 +39,9 @@ input[type="text"] {
     font-size: 18px;
     width: 200px;
     text-align: center;
+    background-color: #333;
+    color: white;
+    border: 1px solid #6200ea;
 }
 
 #battleLog {
@@ -46,29 +50,29 @@ input[type="text"] {
 }
 
 .correct {
-    color: green;
+    color: #76ff03;
     font-weight: bold;
 }
 
 .incorrect {
-    color: red;
+    color: #ff1744;
     font-weight: bold;
 }
 
 .energy {
-    color: #00cc00;
+    color: #00e5ff;
 }
 
 .damage {
-    color: red;
+    color: #ff6d00;
 }
 
 .heal {
-    color: green;
+    color: #00e676;
 }
 
 .monsterAttack {
-    color: orange;
+    color: #ff3d00;
 }
 
 #battleActions {
@@ -78,7 +82,7 @@ input[type="text"] {
 #mcOptions button {
     padding: 10px 20px;
     font-size: 18px;
-    background-color: #0044cc;
+    background-color: #6200ea;
     color: white;
     margin: 5px;
     cursor: pointer;
