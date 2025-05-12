@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mini Prodigy Clone</title>
+  <title>Prodigy Clone - Energy System</title>
   <style>
     body { font-family: sans-serif; text-align: center; background: #f0f4f8; }
     .screen { display: none; }
@@ -24,19 +24,23 @@
   <div id="battleScreen" class="screen">
     <h2>⚔️ Battle Time!</h2>
     <div class="status">
-      Player HP: <span id="playerHp">100</span> | Energy: <span id="playerEnergy">3</span><br>
+      Player HP: <span id="playerHp">100</span> | Energy: <span id="playerEnergy">0</span><br>
       Enemy HP: <span id="enemyHp">100</span>
     </div>
-    <button onclick="attack()">Attack (-1 energy)</button>
-    <button onclick="heal()">Heal (-1 energy)</button>
-    <button onclick="castSpell()">Spell (-2 energy)</button><br>
+
+    <div id="actions">
+      <button onclick="attack()">Attack (10 energy)</button>
+      <button onclick="heal()">Heal (10 energy)</button>
+      <button onclick="castSpell()">Spell (20 energy)</button>
+    </div>
+
     <button onclick="goHome()">🏠 Return Home</button>
     <p id="battleLog"></p>
   </div>
 
   <script>
     let playerHp = 100;
-    let playerEnergy = 3;
+    let playerEnergy = 0;
     let enemyHp = 100;
 
     function switchScreen(screenId) {
@@ -47,6 +51,7 @@
     function goToBattle() {
       resetBattle();
       switchScreen('battleScreen');
+      askEnergyQuestions(); // Start by gaining energy
     }
 
     function goHome() {
@@ -55,7 +60,7 @@
 
     function resetBattle() {
       playerHp = 100;
-      playerEnergy = 3;
+      playerEnergy = 0;
       enemyHp = 100;
       updateUI();
       document.getElementById("battleLog").innerText = '';
@@ -67,45 +72,45 @@
       document.getElementById("playerEnergy").innerText = playerEnergy;
     }
 
-    function attack() {
-      if (playerEnergy < 1) return log("Not enough energy!");
-      let correct = askMathQuestion("What is 4 + 5?", 9);
-      if (correct) {
-        enemyHp -= 20;
-        playerEnergy -= 1;
-        log("You hit the enemy!");
-      } else {
-        playerHp -= 10;
-        log("Wrong answer! Enemy hit you.");
+    function askEnergyQuestions() {
+      let correct = 0;
+      for (let i = 0; i < 3; i++) {
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
+        const answer = prompt(`Question ${i + 1}: What is ${num1} + ${num2}?`);
+        if (parseInt(answer) === num1 + num2) {
+          correct++;
+        }
       }
+
+      const gainedEnergy = correct * 10;
+      playerEnergy += gainedEnergy;
+      log(`You answered ${correct}/3 correctly. Gained ${gainedEnergy} energy.`);
+      updateUI();
+    }
+
+    function attack() {
+      if (playerEnergy < 10) return notEnoughEnergy();
+      enemyHp -= 20;
+      playerEnergy -= 10;
+      log("You attacked the enemy for 20 damage!");
       endTurn();
     }
 
     function heal() {
-      if (playerEnergy < 1) return log("Not enough energy!");
+      if (playerEnergy < 10) return notEnoughEnergy();
       playerHp = Math.min(100, playerHp + 15);
-      playerEnergy -= 1;
-      log("You healed 15 HP!");
+      playerEnergy -= 10;
+      log("You healed for 15 HP.");
       endTurn();
     }
 
     function castSpell() {
-      if (playerEnergy < 2) return log("Not enough energy!");
-      let correct = askMathQuestion("What is 7 x 6?", 42);
-      if (correct) {
-        enemyHp -= 35;
-        log("Powerful spell hit enemy for 35!");
-      } else {
-        playerHp -= 15;
-        log("Spell failed! You got hurt.");
-      }
-      playerEnergy -= 2;
+      if (playerEnergy < 20) return notEnoughEnergy();
+      enemyHp -= 35;
+      playerEnergy -= 20;
+      log("Powerful spell dealt 35 damage!");
       endTurn();
-    }
-
-    function askMathQuestion(q, correctAnswer) {
-      let answer = prompt(q);
-      return parseInt(answer) === correctAnswer;
     }
 
     function endTurn() {
@@ -117,10 +122,23 @@
         alert("Defeated! 💀");
         goHome();
       } else if (playerEnergy <= 0) {
-        log("You're out of energy! Resetting energy...");
-        playerEnergy = 3;
+        // Monster attacks you
+        const dmg = Math.floor(Math.random() * 15) + 10;
+        playerHp -= dmg;
+        log(`You're out of energy. The monster attacked and dealt ${dmg} damage.`);
         updateUI();
+        if (playerHp <= 0) {
+          alert("You were defeated! 💀");
+          goHome();
+        } else {
+          // Start next energy gain cycle
+          setTimeout(askEnergyQuestions, 1000);
+        }
       }
+    }
+
+    function notEnoughEnergy() {
+      log("❌ Not enough energy! Choose another move or wait for next cycle.");
     }
 
     function log(msg) {
