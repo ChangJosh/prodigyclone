@@ -1,113 +1,43 @@
-let playerHp = 100;
-let playerEnergy = 0;
-let enemyHp = 100;
-let currentAnswer = 0;
-let questionCount = 0;
-let correctAnswers = 0;
-let actionUsed = false;
-
-function switchScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
-    document.getElementById(screenId).classList.add('visible');
-}
-
-function startGame() {
-    switchScreen('questionScreen');
-    nextQuestion();
-}
-
-function goToBattle() {
-    resetBattle();
-    startQuestionPhase();
-}
-
-function resetBattle() {
-    playerHp = 100;
-    playerEnergy = 0;
-    enemyHp = 100;
-    updateUI();
-    log('');
-    enableActionButtons(false);
-}
-
-function updateUI() {
-    document.getElementById("playerHp").innerText = playerHp;
-    document.getElementById("enemyHp").innerText = enemyHp;
-    document.getElementById("playerEnergy").innerText = playerEnergy;
-}
-
-function log(msg) {
-    const logElement = document.getElementById("battleLog");
-    logElement.innerText = msg;
-
-    if (msg.includes("Correct")) {
-        logElement.classList.add('correct');
-        setTimeout(() => logElement.classList.remove('correct'), 1000);
-    } else if (msg.includes("Incorrect")) {
-        logElement.classList.add('incorrect');
-        setTimeout(() => logElement.classList.remove('incorrect'), 1000);
-    } else if (msg.includes("energy")) {
-        logElement.classList.add('energy');
-        setTimeout(() => logElement.classList.remove('energy'), 1000);
-    } else if (msg.includes("damage")) {
-        logElement.classList.add('damage');
-        setTimeout(() => logElement.classList.remove('damage'), 1000);
-    } else if (msg.includes("heal")) {
-        logElement.classList.add('heal');
-        setTimeout(() => logElement.classList.remove('heal'), 1000);
-    } else if (msg.includes("Monster")) {
-        logElement.classList.add('monsterAttack');
-        setTimeout(() => logElement.classList.remove('monsterAttack'), 1000);
-    }
-}
-
-function enableActionButtons(enable) {
-    const buttons = ["attackBtn", "healBtn", "spellBtn"];
-    buttons.forEach(id => {
-        const btn = document.getElementById(id);
-        if (enable) {
-            btn.classList.remove("disabled");
-            btn.disabled = false;
-        } else {
-            btn.classList.add("disabled");
-            btn.disabled = true;
-        }
-    });
+        logElement.classList.remove('monsterAttack');
+    }, 1000);
 }
 
 function nextQuestion() {
-    currentAnswer = Math.floor(Math.random() * 10) + 1 + Math.floor(Math.random() * 10) + 1;
-    const questionType = Math.random() > 0.5 ? 'input' : 'multiple-choice';
+    questionCount = 0;
+    correctAnswers = 0;
 
-    if (questionType === 'input') {
-        document.getElementById("questionText").innerText = `What is ${currentAnswer - 10} + ${currentAnswer - 1}?`;
-        document.getElementById("userAnswer").value = '';
-        document.getElementById("feedback").innerText = '';
-        document.getElementById("inputQuestion").style.display = "block";
-        document.getElementById("mcQuestion").style.display = "none";
-    } else {
-        const options = [currentAnswer, currentAnswer + 1, currentAnswer - 1, currentAnswer + 2];
-        shuffle(options);
-        document.getElementById("questionText").innerText = `What is ${currentAnswer - 10} + ${currentAnswer - 1}?`;
-        document.getElementById("mcOptions").innerText = `Choose the correct answer:`;
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    currentAnswer = num1 + num2;
+
+    const isMC = Math.random() > 0.5;
+
+    document.getElementById("questionText").innerText = `What is ${num1} + ${num2}?`;
+
+    if (isMC) {
+        const options = shuffle([currentAnswer, currentAnswer + 1, currentAnswer - 1, currentAnswer + 2]);
+        document.getElementById("mcOptions").innerHTML = '';
+        options.forEach(option => {
+            const btn = document.createElement("button");
+            btn.innerText = option;
+            btn.onclick = () => submitMCAnswer(option);
+            document.getElementById("mcOptions").appendChild(btn);
+        });
         document.getElementById("inputQuestion").style.display = "none";
         document.getElementById("mcQuestion").style.display = "block";
-
-        const mcOptionsContainer = document.getElementById("mcOptions");
-        mcOptionsContainer.innerHTML = '';
-        options.forEach(option => {
-            const button = document.createElement("button");
-            button.innerText = option;
-            button.onclick = () => submitMCAnswer(option);
-            mcOptionsContainer.appendChild(button);
-        });
+    } else {
+        document.getElementById("userAnswer").value = '';
+        document.getElementById("inputQuestion").style.display = "block";
+        document.getElementById("mcQuestion").style.display = "none";
     }
+
+    document.getElementById("feedback").innerText = '';
 }
 
 function submitAnswer() {
     const input = document.getElementById("userAnswer").value.trim();
     if (input === '') {
-        alert("Please enter an answer.");
+        alert("Please enter a number.");
         return;
     }
 
@@ -117,61 +47,57 @@ function submitAnswer() {
     if (user === currentAnswer) {
         correctAnswers++;
         feedback.innerText = "✅ Correct!";
+        feedback.className = 'correct';
     } else {
-        feedback.innerText = `❌ Incorrect. The correct answer was ${currentAnswer}.`;
+        feedback.innerText = `❌ Incorrect. Correct answer: ${currentAnswer}`;
+        feedback.className = 'incorrect';
     }
 
     questionCount++;
-    if (questionCount < 3) {
-        setTimeout(nextQuestion, 1500);
-    } else {
-        setTimeout(() => {
-            const gained = correctAnswers * 10;
-            playerEnergy += gained;
-            updateUI();
-            log(`You gained ${gained} energy from answering ${correctAnswers}/3 correctly.`);
-            actionUsed = false;
-            switchScreen("battleScreen");
-            enableActionButtons(true);
-        }, 2000);
-    }
+    setTimeout(checkQuestionProgress, 1500);
 }
 
 function submitMCAnswer(selected) {
+    const feedback = document.getElementById("feedback");
     if (selected === currentAnswer) {
         correctAnswers++;
-        log("✅ Correct!");
+        feedback.innerText = "✅ Correct!";
+        feedback.className = 'correct';
     } else {
-        log(`❌ Incorrect. The correct answer was ${currentAnswer}.`);
+        feedback.innerText = `❌ Incorrect. Correct answer: ${currentAnswer}`;
+        feedback.className = 'incorrect';
     }
 
     questionCount++;
-    if (questionCount < 3) {
-        setTimeout(nextQuestion, 1500);
-    } else {
-        setTimeout(() => {
-            const gained = correctAnswers * 10;
-            playerEnergy += gained;
-            updateUI();
-            log(`You gained ${gained} energy from answering ${correctAnswers}/3 correctly.`);
-            actionUsed = false;
-            switchScreen("battleScreen");
-            enableActionButtons(true);
-        }, 2000);
-    }
+    setTimeout(checkQuestionProgress, 1500);
 }
 
-function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+function checkQuestionProgress() {
+    if (questionCount >= 3) {
+        const gained = correctAnswers * 10;
+        playerEnergy += gained;
+        updateUI();
+        log(`You gained ${gained} energy from ${correctAnswers} correct answers.`);
+        actionUsed = false;
+        switchScreen("battleScreen");
+        enableActionButtons(true);
+
+        // If energy is still 0, monster attacks immediately
+        if (playerEnergy === 0) {
+            setTimeout(monsterAttack, 1000);
+            setTimeout(() => {
+                switchScreen("questionScreen");
+                nextQuestion();
+            }, 2500);
+        }
+    } else {
+        nextQuestion();
     }
 }
 
 function attack(type) {
-    if (actionUsed) return log("You already acted this turn!");
-
-    const now = Date.now();
+    if (actionUsed) return log("❌ You already used an action!");
+    
     const attackData = {
         basic: { cost: 10, dmg: 20 },
         heal: { cost: 10, heal: 15 },
@@ -182,35 +108,55 @@ function attack(type) {
     if (playerEnergy < data.cost) return log("❌ Not enough energy!");
 
     playerEnergy -= data.cost;
-    if (data.dmg) enemyHp -= data.dmg;
-    if (data.heal) playerHp = Math.min(100, playerHp + data.heal);
+    let logMsg = "";
 
-    log(data.dmg ? `You dealt ${data.dmg} damage!` : `You healed for ${data.heal} HP!`);
-
-    actionUsed = true;
-    enableActionButtons(false);
+    if (data.dmg) {
+        enemyHp = Math.max(0, enemyHp - data.dmg);
+        logMsg = `You dealt ${data.dmg} damage!`;
+    } else if (data.heal) {
+        playerHp = Math.min(100, playerHp + data.heal);
+        logMsg = `You healed ${data.heal} HP!`;
+    }
 
     updateUI();
+    log(logMsg);
+    actionUsed = true;
+    enableActionButtons(false);
 
     if (enemyHp <= 0) {
         log("🎉 You win!");
         return setTimeout(() => resetBattle(), 2000);
     }
 
-    setTimeout(monsterAttack, 2000);
+    setTimeout(() => {
+        monsterAttack();
+        setTimeout(() => {
+            switchScreen("questionScreen");
+            nextQuestion();
+        }, 2000);
+    }, 2000);
 }
 
 function monsterAttack() {
-    log("👹 Monster attacks!");
-    const damage = Math.floor(Math.random() * 20) + 5;
-    playerHp -= damage;
+    const dmg = Math.floor(Math.random() * 10) + 10;
+    playerHp = Math.max(0, playerHp - dmg);
     updateUI();
-    log(`👹 Monster dealt ${damage} damage!`);
+    log(`👹 Monster dealt ${dmg} damage!`);
 
     if (playerHp <= 0) {
-        log("💀 You lost!");
-        return setTimeout(() => resetBattle(), 2000);
+        log("💀 You lost! Resetting...");
+        setTimeout(() => resetBattle(), 2000);
     }
+}
 
-    setTimeout(startGame, 2000);
+function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]
+        ];
+    }
+    return array;
 }
