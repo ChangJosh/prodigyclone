@@ -73,35 +73,45 @@ button:active {
 
 #battleLog.correct {
   color: green;
-  transition: color 0.5s ease;
+  animation: fadeIn 1s;
 }
 
 #battleLog.incorrect {
   color: red;
-  transition: color 0.5s ease;
+  animation: fadeIn 1s;
 }
 
 #battleLog.energy {
   color: #ff6f61;
-  transition: color 0.5s ease;
+  animation: fadeIn 1s;
 }
 
 #battleLog.damage {
   color: yellow;
-  transition: color 0.5s ease;
+  animation: fadeIn 1s;
 }
 
 #battleLog.heal {
   color: lightgreen;
-  transition: color 0.5s ease;
+  animation: fadeIn 1s;
 }
 
 #battleLog.enemyDamage {
   color: darkred;
-  transition: color 0.5s ease;
+  animation: fadeIn 1s;
 }
 
 #battleLog.monsterAttack {
   color: purple;
-  transition: color 0.5s ease;
+  animation: fadeIn 1s;
+}
+
+/* Fade-in Effect for Transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
