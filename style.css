@@ -1,10 +1,11 @@
+/* Global Styles */
 body {
   font-family: 'Comic Sans MS', cursive, sans-serif;
-  background-color: #B7E4FF; /* Light blue background */
-  color: #4A4A4A;
-  text-align: center;
+  background: linear-gradient(to bottom, #ff99cc, #cce6ff);
   margin: 0;
   padding: 0;
+  color: #333;
+  text-align: center;
 }
 
 h1, h2 {
@@ -12,20 +13,22 @@ h1, h2 {
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
+/* Button Styles */
 button {
   background-color: #ff6f61;
   border: none;
   color: white;
-  padding: 15px 32px;
+  padding: 15px 30px;
   font-size: 1.2em;
   cursor: pointer;
   border-radius: 8px;
   margin: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 button:hover {
+  background-color: #ff4d3f;
   transform: scale(1.1);
 }
 
@@ -33,6 +36,7 @@ button:active {
   transform: scale(1);
 }
 
+/* Screen Styles */
 .screen {
   display: none;
 }
@@ -50,6 +54,7 @@ button:active {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
+/* Sprite Styles */
 #playerSprite,
 #monsterSprite {
   width: 200px;
@@ -59,7 +64,44 @@ button:active {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.disabled {
-  opacity: 0.5;
-  pointer-events: none;
+/* Transitions for Actions */
+#battleLog {
+  margin-top: 20px;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+#battleLog.correct {
+  color: green;
+  transition: color 0.5s ease;
+}
+
+#battleLog.incorrect {
+  color: red;
+  transition: color 0.5s ease;
+}
+
+#battleLog.energy {
+  color: #ff6f61;
+  transition: color 0.5s ease;
+}
+
+#battleLog.damage {
+  color: yellow;
+  transition: color 0.5s ease;
+}
+
+#battleLog.heal {
+  color: lightgreen;
+  transition: color 0.5s ease;
+}
+
+#battleLog.enemyDamage {
+  color: darkred;
+  transition: color 0.5s ease;
+}
+
+#battleLog.monsterAttack {
+  color: purple;
+  transition: color 0.5s ease;
 }
