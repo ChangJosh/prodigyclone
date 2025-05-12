@@ -11,6 +11,11 @@ function switchScreen(screenId) {
     document.getElementById(screenId).classList.add('visible');
 }
 
+function startGame() {
+    switchScreen('questionScreen');
+    nextQuestion();
+}
+
 function goToBattle() {
     resetBattle();
     startQuestionPhase();
@@ -68,13 +73,6 @@ function enableActionButtons(enable) {
             btn.disabled = true;
         }
     });
-}
-
-function startQuestionPhase() {
-    questionCount = 0;
-    correctAnswers = 0;
-    switchScreen("questionScreen");
-    nextQuestion();
 }
 
 function nextQuestion() {
@@ -214,5 +212,5 @@ function monsterAttack() {
         return setTimeout(() => resetBattle(), 2000);
     }
 
-    setTimeout(startQuestionPhase, 2000);
+    setTimeout(startGame, 2000);
 }
