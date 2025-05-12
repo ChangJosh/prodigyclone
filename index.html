@@ -2,148 +2,221 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Prodigy Clone - Energy System</title>
+  <title>Prodigy Clone - Full Flow</title>
   <style>
-    body { font-family: sans-serif; text-align: center; background: #f0f4f8; }
+    body { font-family: sans-serif; background: #f0f4f8; text-align: center; }
     .screen { display: none; }
     .visible { display: block; }
-    button { padding: 10px 15px; margin: 5px; font-size: 16px; }
+    button { padding: 10px 15px; margin: 10px; font-size: 16px; }
     .status { margin: 10px; font-weight: bold; }
+    .question-box { background: white; padding: 20px; border-radius: 10px; display: inline-block; }
   </style>
 </head>
 <body>
 
-  <!-- Home Screen -->
-  <div id="homeScreen" class="screen visible">
-    <h1>Welcome to Prodigy Clone</h1>
-    <button onclick="goToBattle()">Enter Battle</button>
-    <button onclick="alert('Shop coming soon!')">Shop</button>
+<!-- HOME SCREEN -->
+<div id="homeScreen" class="screen visible">
+  <h1>Welcome to Prodigy Clone</h1>
+  <button onclick="goToBattle()">Enter Battle</button>
+</div>
+
+<!-- BATTLE SCREEN -->
+<div id="battleScreen" class="screen">
+  <h2>⚔️ Battle</h2>
+  <div class="status">
+    Player HP: <span id="playerHp">100</span> | Energy: <span id="playerEnergy">0</span><br>
+    Enemy HP: <span id="enemyHp">100</span>
   </div>
-
-  <!-- Battle Screen -->
-  <div id="battleScreen" class="screen">
-    <h2>⚔️ Battle Time!</h2>
-    <div class="status">
-      Player HP: <span id="playerHp">100</span> | Energy: <span id="playerEnergy">0</span><br>
-      Enemy HP: <span id="enemyHp">100</span>
-    </div>
-
-    <div id="actions">
-      <button onclick="attack()">Attack (10 energy)</button>
-      <button onclick="heal()">Heal (10 energy)</button>
-      <button onclick="castSpell()">Spell (20 energy)</button>
-    </div>
-
-    <button onclick="goHome()">🏠 Return Home</button>
-    <p id="battleLog"></p>
+  <div id="actions">
+    <button onclick="attack()">Attack (10 energy)</button>
+    <button onclick="heal()">Heal (10 energy)</button>
+    <button onclick="castSpell()">Spell (20 energy)</button>
   </div>
+  <p id="battleLog"></p>
+</div>
 
-  <script>
-    let playerHp = 100;
-    let playerEnergy = 0;
-    let enemyHp = 100;
+<!-- QUESTION SCREEN -->
+<div id="questionScreen" class="screen">
+  <h2>🧠 Answer Questions to Gain Energy</h2>
+  <div id="questionContainer" class="question-box">
+    <p id="questionText"></p>
+    <div id="answerArea"></div>
+    <button onclick="submitAnswer()">Submit</button>
+  </div>
+</div>
 
-    function switchScreen(screenId) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
-      document.getElementById(screenId).classList.add('visible');
-    }
+<script>
+  let playerHp = 100;
+  let playerEnergy = 0;
+  let enemyHp = 100;
 
-    function goToBattle() {
-      resetBattle();
-      switchScreen('battleScreen');
-      askEnergyQuestions(); // Start by gaining energy
-    }
+  // QUESTION STATE
+  let currentQuestion = 0;
+  let correctAnswers = 0;
+  let questionSet = [];
 
-    function goHome() {
-      switchScreen('homeScreen');
-    }
+  function switchScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+    document.getElementById(screenId).classList.add('visible');
+  }
 
-    function resetBattle() {
-      playerHp = 100;
-      playerEnergy = 0;
-      enemyHp = 100;
-      updateUI();
-      document.getElementById("battleLog").innerText = '';
-    }
+  function goToBattle() {
+    resetBattle();
+    switchScreen('battleScreen');
+    startQuestionPhase();
+  }
 
-    function updateUI() {
-      document.getElementById("playerHp").innerText = playerHp;
-      document.getElementById("enemyHp").innerText = enemyHp;
-      document.getElementById("playerEnergy").innerText = playerEnergy;
-    }
+  function resetBattle() {
+    playerHp = 100;
+    playerEnergy = 0;
+    enemyHp = 100;
+    updateUI();
+    document.getElementById("battleLog").innerText = '';
+  }
 
-    function askEnergyQuestions() {
-      let correct = 0;
-      for (let i = 0; i < 3; i++) {
-        const num1 = Math.floor(Math.random() * 10) + 1;
-        const num2 = Math.floor(Math.random() * 10) + 1;
-        const answer = prompt(`Question ${i + 1}: What is ${num1} + ${num2}?`);
-        if (parseInt(answer) === num1 + num2) {
-          correct++;
-        }
+  function updateUI() {
+    document.getElementById("playerHp").innerText = playerHp;
+    document.getElementById("enemyHp").innerText = enemyHp;
+    document.getElementById("playerEnergy").innerText = playerEnergy;
+  }
+
+  // === QUESTION SYSTEM ===
+  function startQuestionPhase() {
+    correctAnswers = 0;
+    currentQuestion = 0;
+    questionSet = generateQuestionSet(3);
+    switchScreen('questionScreen');
+    showQuestion();
+  }
+
+  function generateQuestionSet(n) {
+    const q = [];
+
+    for (let i = 0; i < n; i++) {
+      if (Math.random() < 0.5) {
+        // Input-based
+        const a = Math.floor(Math.random() * 10) + 1;
+        const b = Math.floor(Math.random() * 10) + 1;
+        q.push({ type: "input", question: `What is ${a} + ${b}?`, answer: a + b });
+      } else {
+        // Multiple choice
+        const a = Math.floor(Math.random() * 12) + 1;
+        const b = Math.floor(Math.random() * 12) + 1;
+        const correct = a * b;
+        const choices = shuffleArray([
+          correct,
+          correct + 2,
+          correct - 3,
+          correct + 5
+        ]);
+        q.push({ type: "mc", question: `What is ${a} × ${b}?`, answer: correct, choices });
       }
+    }
+    return q;
+  }
 
-      const gainedEnergy = correct * 10;
+  function showQuestion() {
+    const q = questionSet[currentQuestion];
+    document.getElementById("questionText").innerText = q.question;
+    const answerArea = document.getElementById("answerArea");
+    answerArea.innerHTML = '';
+
+    if (q.type === "input") {
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = "userAnswer";
+      answerArea.appendChild(input);
+    } else if (q.type === "mc") {
+      q.choices.forEach((choice, index) => {
+        const label = document.createElement("label");
+        label.innerHTML = `
+          <input type="radio" name="mcAnswer" value="${choice}">
+          ${choice}
+        `;
+        answerArea.appendChild(label);
+        answerArea.appendChild(document.createElement("br"));
+      });
+    }
+  }
+
+  function submitAnswer() {
+    const q = questionSet[currentQuestion];
+    let userAnswer;
+
+    if (q.type === "input") {
+      userAnswer = parseInt(document.getElementById("userAnswer").value);
+    } else if (q.type === "mc") {
+      const selected = document.querySelector('input[name="mcAnswer"]:checked');
+      if (!selected) return alert("Please select an answer!");
+      userAnswer = parseInt(selected.value);
+    }
+
+    if (userAnswer === q.answer) correctAnswers++;
+
+    currentQuestion++;
+    if (currentQuestion < questionSet.length) {
+      showQuestion();
+    } else {
+      const gainedEnergy = correctAnswers * 10;
       playerEnergy += gainedEnergy;
-      log(`You answered ${correct}/3 correctly. Gained ${gainedEnergy} energy.`);
+      alert(`You got ${correctAnswers}/3 correct and gained ${gainedEnergy} energy!`);
+      switchScreen('battleScreen');
       updateUI();
     }
+  }
 
-    function attack() {
-      if (playerEnergy < 10) return notEnoughEnergy();
-      enemyHp -= 20;
-      playerEnergy -= 10;
-      log("You attacked the enemy for 20 damage!");
-      endTurn();
-    }
+  function shuffleArray(arr) {
+    return arr.sort(() => Math.random() - 0.5);
+  }
 
-    function heal() {
-      if (playerEnergy < 10) return notEnoughEnergy();
-      playerHp = Math.min(100, playerHp + 15);
-      playerEnergy -= 10;
-      log("You healed for 15 HP.");
-      endTurn();
-    }
+  // === ACTIONS ===
+  function attack() {
+    if (playerEnergy < 10) return log("❌ Not enough energy!");
+    enemyHp -= 20;
+    playerEnergy -= 10;
+    log("You attacked the enemy for 20!");
+    endTurn();
+  }
 
-    function castSpell() {
-      if (playerEnergy < 20) return notEnoughEnergy();
-      enemyHp -= 35;
-      playerEnergy -= 20;
-      log("Powerful spell dealt 35 damage!");
-      endTurn();
-    }
+  function heal() {
+    if (playerEnergy < 10) return log("❌ Not enough energy!");
+    playerHp = Math.min(100, playerHp + 15);
+    playerEnergy -= 10;
+    log("You healed for 15 HP.");
+    endTurn();
+  }
 
-    function endTurn() {
+  function castSpell() {
+    if (playerEnergy < 20) return log("❌ Not enough energy!");
+    enemyHp -= 35;
+    playerEnergy -= 20;
+    log("You cast a spell for 35 damage!");
+    endTurn();
+  }
+
+  function endTurn() {
+    updateUI();
+    if (enemyHp <= 0) {
+      alert("You win! 🎉");
+      switchScreen("homeScreen");
+    } else if (playerEnergy <= 0) {
+      const dmg = Math.floor(Math.random() * 15) + 10;
+      playerHp -= dmg;
       updateUI();
-      if (enemyHp <= 0) {
-        alert("Victory! 🎉");
-        goHome();
-      } else if (playerHp <= 0) {
-        alert("Defeated! 💀");
-        goHome();
-      } else if (playerEnergy <= 0) {
-        // Monster attacks you
-        const dmg = Math.floor(Math.random() * 15) + 10;
-        playerHp -= dmg;
-        log(`You're out of energy. The monster attacked and dealt ${dmg} damage.`);
-        updateUI();
-        if (playerHp <= 0) {
-          alert("You were defeated! 💀");
-          goHome();
-        } else {
-          // Start next energy gain cycle
-          setTimeout(askEnergyQuestions, 1000);
-        }
+      log(`Enemy attacked for ${dmg} while you had no energy!`);
+      if (playerHp <= 0) {
+        alert("You were defeated!");
+        switchScreen("homeScreen");
+      } else {
+        setTimeout(startQuestionPhase, 1000);
       }
     }
+  }
 
-    function notEnoughEnergy() {
-      log("❌ Not enough energy! Choose another move or wait for next cycle.");
-    }
+  function log(msg) {
+    document.getElementById("battleLog").innerText = msg;
+  }
+</script>
 
-    function log(msg) {
-      document.getElementById("battleLog").innerText = msg;
-    }
-  </script>
 </body>
 </html>
