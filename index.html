@@ -1,65 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prodigy Clone</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- HOME SCREEN -->
-  <div id="homeScreen" class="screen visible">
-    <h1>Welcome to Prodigy Clone</h1>
-    <button onclick="goToBattle()">Enter Battle</button>
-  </div>
-
-  <!-- BATTLE SCREEN -->
-  <div id="battleScreen" class="screen">
-    <h2>⚔️ Battle</h2>
-    <div class="status">
-      Player HP: <span id="playerHp">100</span> |
-      Energy: <span id="playerEnergy">0</span><br>
-      Enemy HP: <span id="enemyHp">100</span>
+    <div id="questionScreen" class="screen">
+        <h2 id="questionText"></h2>
+        <div id="inputQuestion" style="display:none;">
+            <input type="text" id="userAnswer">
+            <button onclick="submitAnswer()">Submit Answer</button>
+        </div>
+        <div id="mcQuestion" style="display:none;">
+            <div id="mcOptions"></div>
+        </div>
+        <div id="feedback"></div>
+        <div id="actions">
+            <button onclick="startBattle()">Start Battle</button>
+        </div>
     </div>
-    <div id="actions">
-      <button id="attackBtn" onclick="attack('basic')">Basic Attack (10 Energy)</button>
-      <button id="healBtn" onclick="attack('heal')">Heal (10 Energy)</button>
-      <button id="spellBtn" onclick="attack('spell')">Spell (20 Energy)</button>
-    </div>
-    <p id="battleLog"></p>
-    <div id="gameContainer">
-      <video id="playerSprite" width="200" height="200" autoplay loop muted>
-        <source src="player_attack.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <video id="monsterSprite" width="200" height="200" autoplay loop muted>
-        <source src="monster_attack.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  </div>
 
-  <!-- QUESTION SCREEN -->
-  <div id="questionScreen" class="screen">
-    <h2>🧠 Answer Questions to Gain Energy</h2>
-    <div class="question-box">
-      <p id="questionText"></p>
-      <div id="inputQuestion">
-        <input type="number" id="userAnswer" />
-        <p id="feedback"></p>
-        <button onclick="submitAnswer()">Submit Answer</button>
-      </div>
-      <div id="mcQuestion" style="display:none;">
-        <label id="mcOptions"></label>
-        <button onclick="submitMCAnswer(0)">Option 1</button>
-        <button onclick="submitMCAnswer(1)">Option 2</button>
-        <button onclick="submitMCAnswer(2)">Option 3</button>
-        <button onclick="submitMCAnswer(3)">Option 4</button>
-      </div>
+    <div id="battleScreen" class="screen">
+        <h2>Battle</h2>
+        <p>Player HP: <span id="playerHp">100</span></p>
+        <p>Enemy HP: <span id="enemyHp">100</span></p>
+        <p>Energy: <span id="playerEnergy">0</span></p>
+        <div id="battleActions">
+            <button id="attackBtn" onclick="attack('basic')" class="actionBtn">Attack</button>
+            <button id="healBtn" onclick="attack('heal')" class="actionBtn">Heal</button>
+            <button id="spellBtn" onclick="attack('spell')" class="actionBtn">Spell</button>
+        </div>
+        <div id="battleLog"></div>
     </div>
-  </div>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
