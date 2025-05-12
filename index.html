@@ -7,21 +7,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="questionScreen" class="screen">
+    <!-- Question Phase -->
+    <div id="questionScreen" class="screen visible">
         <h2 id="questionText"></h2>
-        <div id="inputQuestion" style="display:none;">
-            <input type="text" id="userAnswer">
+        <div id="inputQuestion">
+            <input type="text" id="userAnswer" placeholder="Your answer">
             <button onclick="submitAnswer()">Submit Answer</button>
         </div>
         <div id="mcQuestion" style="display:none;">
             <div id="mcOptions"></div>
         </div>
         <div id="feedback"></div>
-        <div id="actions">
-            <button onclick="startBattle()">Start Battle</button>
-        </div>
     </div>
 
+    <!-- Battle Phase -->
     <div id="battleScreen" class="screen">
         <h2>Battle</h2>
         <p>Player HP: <span id="playerHp">100</span></p>
