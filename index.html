@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prodigy Fight Clone</title>
+  <style>
+    body { font-family: sans-serif; background: #e0f7fa; text-align: center; }
+    .player, .enemy { display: inline-block; margin: 20px; }
+    .health { font-weight: bold; }
+    button { padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Math Battle!</h1>
+
+  <div class="player">
+    <h2>Player</h2>
+    <p>Health: <span id="playerHealth" class="health">100</span></p>
+    <button onclick="attack()">Answer Question</button>
+  </div>
+
+  <div class="enemy">
+    <h2>Enemy</h2>
+    <p>Health: <span id="enemyHealth" class="health">100</span></p>
+  </div>
+
+  <div id="question" style="margin-top: 30px;"></div>
+  <div id="result"></div>
+
+  <script>
+    let playerHealth = 100;
+    let enemyHealth = 100;
+
+    function attack() {
+      const num1 = Math.floor(Math.random() * 10) + 1;
+      const num2 = Math.floor(Math.random() * 10) + 1;
+      const correctAnswer = num1 + num2;
+
+      const userAnswer = prompt(`What is ${num1} + ${num2}?`);
+      if (parseInt(userAnswer) === correctAnswer) {
+        enemyHealth -= 20;
+        document.getElementById("result").innerText = "Correct! You hit the enemy.";
+      } else {
+        playerHealth -= 15;
+        document.getElementById("result").innerText = "Wrong! The enemy hit you.";
+      }
+
+      updateHealth();
+      checkGameOver();
+    }
+
+    function updateHealth() {
+      document.getElementById("playerHealth").innerText = playerHealth;
+      document.getElementById("enemyHealth").innerText = enemyHealth;
+    }
+
+    function checkGameOver() {
+      if (enemyHealth <= 0) {
+        alert("You win!");
+        resetGame();
+      } else if (playerHealth <= 0) {
+        alert("You lost!");
+        resetGame();
+      }
+    }
+
+    function resetGame() {
+      playerHealth = 100;
+      enemyHealth = 100;
+      updateHealth();
+      document.getElementById("result").innerText = "";
+    }
+  </script>
+</body>
+</html>
