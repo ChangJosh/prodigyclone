@@ -45,9 +45,18 @@
     <h2>🧠 Answer Questions to Gain Energy</h2>
     <div class="question-box">
       <p id="questionText"></p>
-      <input type="number" id="userAnswer" />
-      <p id="feedback"></p>
-      <button onclick="submitAnswer()">Submit Answer</button>
+      <div id="inputQuestion">
+        <input type="number" id="userAnswer" />
+        <p id="feedback"></p>
+        <button onclick="submitAnswer()">Submit Answer</button>
+      </div>
+      <div id="mcQuestion" style="display:none;">
+        <label id="mcOptions"></label>
+        <button onclick="submitMCAnswer(0)">Option 1</button>
+        <button onclick="submitMCAnswer(1)">Option 2</button>
+        <button onclick="submitMCAnswer(2)">Option 3</button>
+        <button onclick="submitMCAnswer(3)">Option 4</button>
+      </div>
     </div>
   </div>
 
