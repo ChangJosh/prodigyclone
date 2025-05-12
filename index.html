@@ -7,8 +7,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Home Screen -->
+    <div id="homeScreen" class="screen visible">
+        <h1>Welcome to Battle Game</h1>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
     <!-- Question Phase -->
-    <div id="questionScreen" class="screen visible">
+    <div id="questionScreen" class="screen">
         <h2 id="questionText"></h2>
         <div id="inputQuestion">
             <input type="text" id="userAnswer" placeholder="Your answer">
